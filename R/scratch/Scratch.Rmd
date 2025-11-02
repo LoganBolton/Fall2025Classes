@@ -1,0 +1,121 @@
+---
+title: "scratch"
+output: html_document
+date: "2025-10-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+
+student_work <- c(0, 0, 0, 0, 0, 0.25, 0.75, 0.75, 1, 1.25, 6)
+
+B <- 500
+
+results = rep(NA, B)
+n = length(student_work)
+
+alpha = 0.05
+for (i in 1:B) {
+  student_work_star <- sample(student_work, n, replace=TRUE)
+  results[i] <- median(student_work_star)
+}
+
+quantile(results, c(alpha/2, 1 - alpha/2))
+
+```
+
+
+
+```{r}
+steps = 10^3
+
+probs = c(0.25, 0.5, 0.75)
+
+step_direction = matrix(0, steps+1, 2)
+
+for (i in 1:steps) {
+  rn = runif(1)
+  
+  if (rn < probs[1]) { # left
+    step_direction[i,1] = -1
+  } else if (rn >= probs[1] && rn < probs[2]) {
+    step_direction[i,1] = 1
+  } else if (rn >= probs[2] && rn < probs[3]) {
+    step_direction[i, 2] = -1
+  } else {
+    step_direction[i,2] = 1
+  }
+}
+
+position = data.frame(x = cumsum(step_direction[,1]),
+                       y = cumsum(step_direction[,2]))
+color = "blue4"
+xlab = "X-position"
+ylab = "Y-position"
+pt_pch = 16
+pt.cex = 2
+main = paste("Simulated 2D RW with", steps, "steps", sep = " ")
+hues = seq(15, 375, length = 3)
+pt_col = hcl(h = hues, l = 65, c = 100)[1:2]
+par(mar = c(5.1, 5.1, 1, 2.1))
+
+# Main plot
+plot(NA,  xlim = range(position[,1]), 
+          ylim = range(range(position[,2])), 
+          xlab = xlab, ylab = ylab, xaxt = 'n', 
+          yaxt = 'n', bty = "n", ann = FALSE)
+win_dim = par("usr")
+
+par(new = TRUE)
+plot(NA, xlim = range(position[,1]), ylim = c(win_dim[3], win_dim[4] + 0.09*(win_dim[4] - win_dim[3])),
+       xlab = xlab, ylab = ylab, xaxt = 'n', yaxt = 'n', bty = "n")
+  win_dim = par("usr")
+
+# Add grid
+grid(NULL, NULL, lty = 1, col = "grey95")
+
+# Add title
+x_vec = c(win_dim[1], win_dim[2], win_dim[2], win_dim[1])
+y_vec = c(win_dim[4], win_dim[4],
+            win_dim[4] - 0.09*(win_dim[4] - win_dim[3]),
+            win_dim[4] - 0.09*(win_dim[4] - win_dim[3]))
+polygon(x_vec, y_vec, col = "grey95", border = NA)
+text(x = mean(c(win_dim[1], win_dim[2])), y = (win_dim[4] - 0.09/2*(win_dim[4] - win_dim[3])), main)
+
+# Add axes and box
+lines(x_vec[1:2], rep((win_dim[4] - 0.09*(win_dim[4] - win_dim[3])),2), col = 1)
+box()
+axis(1, padj = 0.3)
+y_axis = axis(2, labels = FALSE, tick = FALSE)
+y_axis = y_axis[y_axis < (win_dim[4] - 0.09*(win_dim[4] - win_dim[3]))]
+axis(2, padj = -0.2, at = y_axis)
+
+# Add trajectory
+lines(position, type = "l", col = color, pch = 16)
+  
+# Start and end points
+points(c(0,position[steps+1,1]), c(0,position[steps+1,2]), cex = pt.cex, col = pt_col, pch = pt_pch)
+  
+# Legend
+leg_pos = c(min(position[,1]), max(position[,2]))
+legend(leg_pos[1], leg_pos[2], c("Start","End"), 
+      col = pt_col, pch = pt_pch, pt.cex = pt.cex, bty = "n")
+
+```
+
+
+```{r}
+
+
+```
+
+
